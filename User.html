@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>أداة فحص اليوزرات</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    .available {
+      color: green;
+    }
+    .taken {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h2>أداة فحص توفر اليوزرات</h2>
+<p>أدخل يوزرات (كل واحد في سطر):</p>
+<textarea id="usernames"></textarea>
+<br>
+<button onclick="checkUsernames()">فحص</button>
+
+<div class="result" id="resultBox"></div>
+
+<script>
+  async function checkUsernames() {
+    const input = document.getElementById("usernames").value;
+    const usernames = input.split("\n").map(u => u.trim()).filter(u => u);
+    const resultBox = document.getElementById("resultBox");
+    resultBox.innerHTML = "جارٍ الفحص...";
+
+    let results = [];
+
+    for (let username of usernames) {
+      try {
+        const res = await fetch(`http://8.213.33.135/api/username-exists?username=${username}`);
+        const data = await res.json();
+
+        if (data.exists === true) {
+          results.push(`<div class="taken">${username}</div>`);
+        } else {
+          results.push(`<div class="available">${username}</div>`);
+        }
+      } catch (e) {
+        results.push(`<div class="taken">${username} (خطأ في الاتصال)</div>`);
+      }
+    }
+
+    resultBox.innerHTML = results.join("");
+  }
+</script>
+
+</body>
+</html>
